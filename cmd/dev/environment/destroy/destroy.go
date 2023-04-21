@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/power-slide/cli/pkg/updater"
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +18,7 @@ var Cmd = &cobra.Command{
 }
 
 func run(cmd *cobra.Command, args []string) {
+	updater.AutomaticUpdate()
 	clusterCommandArgs := []string{"cluster", "delete", args[0]}
 	fmt.Printf("Deleting local k3s cluster... ")
 	k3dCommand := exec.Command("k3d", clusterCommandArgs...)

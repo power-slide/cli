@@ -2,10 +2,24 @@ package config
 
 import (
 	"os"
+	"time"
 
 	"github.com/power-slide/cli/pkg/logger"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	str2dur "github.com/xhit/go-str2duration/v2"
+)
+
+const (
+	DefaultConfigFile   = ".powerslide"
+	DefaultConfigFormat = "yaml"
+	autoUpdateKey       = "auto-update"
+	updateIntervalKey   = "update-interval"
+	lastUpdateCheckKey  = "last-update-check"
+
+	defaultLastUpdate     = 0
+	defaultAutoUpdate     = true
+	defaultUpdateInterval = "1d"
 )
 
 var (
@@ -44,6 +58,52 @@ func Init() {
 }
 
 func setDefaultConfig() {
+	viper.SetDefault(autoUpdateKey, defaultAutoUpdate)
+	viper.SetDefault(updateIntervalKey, defaultUpdateInterval)
+	viper.SetDefault(lastUpdateCheckKey, defaultLastUpdate)
+}
+
+func AutoUpdateEnabled() bool {
+	return viper.GetBool(autoUpdateKey)
+}
+
+func SetAutoUpdate(newValue bool) {
+	configUpdated = true
+	log.Debugln("config: setting", autoUpdateKey, "to", newValue)
+	viper.Set(autoUpdateKey, newValue)
+}
+
+func ToggleAutoUpdate() {
+	newValue := !viper.GetBool(autoUpdateKey)
+	configUpdated = true
+	log.Debugln("config: toggling", autoUpdateKey, "to", newValue)
+	viper.Set(autoUpdateKey, newValue)
+}
+
+func AutoUpdateInterval() time.Duration {
+	interval, err := str2dur.ParseDuration(viper.GetString(updateIntervalKey))
+	if err != nil {
+		interval, _ = str2dur.ParseDuration(defaultUpdateInterval)
+	}
+	return interval
+}
+
+func SetAutoUpdateInterval(interval time.Duration) {
+	newValue := str2dur.String(interval)
+	configUpdated = true
+	log.Debugln("config: setting", updateIntervalKey, "to", newValue)
+	viper.Set(updateIntervalKey, newValue)
+}
+
+func LastUpdateCheck() time.Time {
+	return time.Unix(viper.GetInt64(lastUpdateCheckKey), 0)
+}
+
+func SetLastUpdateCheck() {
+	newValue := time.Now().Unix()
+	configUpdated = true
+	log.Debugln("config: setting", lastUpdateCheckKey, "to", newValue)
+	viper.Set(lastUpdateCheckKey, newValue)
 }
 
 func WriteConfig() {
@@ -67,5 +127,8 @@ func WriteConfig() {
 
 func rawFields() log.Fields {
 	return log.Fields{
+		autoUpdateKey:      viper.GetBool(autoUpdateKey),
+		updateIntervalKey:  viper.GetString(updateIntervalKey),
+		lastUpdateCheckKey: viper.GetInt64(lastUpdateCheckKey),
 	}
 }

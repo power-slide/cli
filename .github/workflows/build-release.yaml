@@ -1,0 +1,52 @@
+name: Build Release
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ github.token }}
+
+      - name: Set Go Version
+        id: go_version
+        run: |
+          echo "VERSION=$(cat .tool-versions | grep golang | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ steps.go_version.outputs.VERSION }}
+
+      - name: Build Release
+        env:
+          RELEASE_VERSION: ${{ steps.tag_version.outputs.new_version }}
+        run: make release
+
+      - name: Create a GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ github.token }}
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_version }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+          files: |
+            bin/install.sh
+            bin/pwrsl-linux-386
+            bin/pwrsl-linux-amd64
+            bin/pwrsl-linux-arm
+            bin/pwrsl-linux-arm64
+            bin/pwrsl-darwin-amd64
+            bin/pwrsl-darwin-arm64
+            bin/pwrsl-windows-386.exe
+            bin/pwrsl-windows-amd64.exe
+            bin/pwrsl-windows-arm.exe
+            bin/pwrsl-windows-arm64.exe

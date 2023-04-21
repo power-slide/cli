@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/power-slide/cli/cmd/dev"
+	"github.com/power-slide/cli/cmd/setup"
+	"github.com/power-slide/cli/cmd/update"
 	"github.com/power-slide/cli/cmd/versions"
 	"github.com/power-slide/cli/pkg/config"
 	"github.com/power-slide/cli/pkg/logger"
@@ -37,5 +39,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&config.ConfigFile, "config", "c", "", configHelpMsg)
 
 	rootCmd.AddCommand(dev.Cmd)
+	rootCmd.AddCommand(update.Cmd)
+	rootCmd.AddCommand(setup.Cmd)
 	rootCmd.AddCommand(versions.Cmd)
 }

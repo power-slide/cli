@@ -6,6 +6,7 @@ import (
 
 	"github.com/power-slide/cli/cmd/util"
 	"github.com/power-slide/cli/cmd/util/colors"
+	"github.com/power-slide/cli/pkg/updater"
 	"github.com/spf13/cobra"
 )
 
@@ -53,6 +54,7 @@ func checkArgs(cmd *cobra.Command, args []string) error {
 }
 
 func run(cmd *cobra.Command, args []string) {
+	updater.AutomaticUpdate()
 	fmt.Println("Creating a local PowerSlide environment...")
 	checkForCommands()
 	createCluster(args[0])

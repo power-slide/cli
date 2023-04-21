@@ -3,6 +3,7 @@ package versions
 import (
 	"fmt"
 
+	"github.com/power-slide/cli/pkg/updater"
 	"github.com/power-slide/cli/pkg/version"
 	"github.com/spf13/cobra"
 )
@@ -31,6 +32,10 @@ func execute(cmd *cobra.Command, args []string) {
 	updater.AutomaticUpdate()
 
 	noFlagSet := !(latestOnly || localOnly || clusterOnly)
+
+	if noFlagSet || latestOnly {
+		fmt.Printf("PowerSlide latest stable version: %s\n", version.LatestVersion())
+	}
 
 	if noFlagSet || localOnly {
 		fmt.Printf("PowerSlide CLI version: %s\n", version.Version)
