@@ -21,12 +21,23 @@ func installMonitoringStack() {
 	}
 	fmt.Print("Installing Prometheus monitoring stack (kube-prometheus-stack)... ")
 	util.CreateNamespace("pwrsl-monitoring")
-	util.Kubectl([]string{"apply", "-f", "-"}, monitoringHelmChart)
-
+	util.Kubectl([]string{"apply", "-f", "-"}, prometheusOperatorHelmChart)
+	
+	requiredPrometheusCRDs := []string{
+		"alertmanagerconfigs.monitoring.coreos.com",
+		"alertmanagers.monitoring.coreos.com",
+		"podmonitors.monitoring.coreos.com",
+		"probes.monitoring.coreos.com",
+		"prometheuses.monitoring.coreos.com",
+		"prometheusrules.monitoring.coreos.com",
+		"servicemonitors.monitoring.coreos.com",
+		"thanosrulers.monitoring.coreos.com",
+	}
+	
 	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
 	defer cancel()
 	for {
-		if util.KubectlHasCRD(ctx, "servicemonitors.monitoring.coreos.com") {
+		if util.KubectlHasAllCRDs(ctx, requiredPrometheusCRDs) {
 			break
 		} else if ctx.Err() != nil {
 			fmt.Println()
