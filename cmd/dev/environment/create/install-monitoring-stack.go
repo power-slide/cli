@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	//go:embed static/002-monitoring.yaml
-	monitoringHelmChart string
+	//go:embed static/monitoring/000-prometheus-operator.yaml
+	prometheusOperatorHelmChart string
 )
 
 func installMonitoringStack() {

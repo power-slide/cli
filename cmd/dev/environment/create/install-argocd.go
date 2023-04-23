@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	//go:embed static/003-argocd.yaml
+	//go:embed static/argo/000-argocd.yaml
 	argocdHelmChart string
 )
 
