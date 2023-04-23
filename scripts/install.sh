@@ -45,7 +45,7 @@ LATEST_RELEASE=$(curl -fsSL \
     https://api.github.com/repos/power-slide/cli/releases/latest)
 
 LATEST_URL=$(echo ${LATEST_RELEASE} | jq -r ".assets[]? | select(.name==\"${TARGET}\") | .browser_download_url")
-LATEST_VERSION=$(echo ${LATEST_RELEASE} | jq -r ".tag_name?")
+LATEST_VERSION=$(echo ${LATEST_RELEASE} | jq -r ".tag_name?" | sed 's/v//g')
 
 if [ $LATEST_VERSION == "null" ] || [ $LATEST_URL == "null" ] ; then
     echo "Unable to get latest release from GitHub API" >&2
