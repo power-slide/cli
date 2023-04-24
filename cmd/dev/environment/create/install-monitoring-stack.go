@@ -17,12 +17,20 @@ const (
 var (
 	//go:embed static/monitoring/000-prometheus-operator.yaml
 	prometheusOperatorHelmChart string
+	//go:embed static/monitoring/001-traefik.yaml
+	traefikMonitoringManifest string
 )
 
 func installMonitoringStack() {
 	if skipMonitoring {
 		return
 	}
+
+	installPrometheusOperator()
+	addTraefikMonitoring()
+}
+
+func installPrometheusOperator() {
 	fmt.Print("Installing Prometheus operator (kube-prometheus-stack)... ")
 	util.CreateNamespace(monitoringNamespace)
 	util.Kubectl([]string{"apply", "-f", "-"}, prometheusOperatorHelmChart)
@@ -80,5 +88,11 @@ func installMonitoringStack() {
 		"",
 	)
 
+	fmt.Println("Done!")
+}
+
+func addTraefikMonitoring() {
+	fmt.Print("Adding service monitors for Traefik... ")
+	util.Kubectl([]string{"apply", "-f", "-"}, traefikMonitoringManifest)
 	fmt.Println("Done!")
 }
