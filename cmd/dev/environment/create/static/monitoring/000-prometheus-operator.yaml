@@ -9,7 +9,35 @@ spec:
   targetNamespace: pwrsl-monitoring
   version: '45.10.1'
   valuesContent: |-
+    commonLabels:
+      powerslide.cloud/infrastructure: 'true'
     grafana:
       enabled: false
     prometheus:
-      enabled: false
+      ingress:
+        enabled: true
+        paths:
+          - /monitoring/prometheus
+        pathType: Prefix
+        ingressClassName: traefik
+      prometheusSpec:
+        externalUrl: http://localhost:42069/monitoring/prometheus
+        routePrefix: /monitoring/prometheus
+        serviceMonitorNamespaceSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
+        serviceMonitorSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
+        podMonitorNamespaceSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
+        podMonitorSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
+        probeMonitorNamespaceSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
+        probeMonitorSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
