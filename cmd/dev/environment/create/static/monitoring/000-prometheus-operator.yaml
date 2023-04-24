@@ -1,0 +1,58 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: pwrsl-monitoring
+  namespace: kube-system
+spec:
+  repo: https://prometheus-community.github.io/helm-charts
+  chart: kube-prometheus-stack
+  targetNamespace: pwrsl-monitoring
+  version: '45.10.1'
+  valuesContent: |-
+    commonLabels:
+      powerslide.cloud/infrastructure: 'true'
+    grafana:
+      plugins:
+        - grafana-piechart-panel
+      serviceMonitor:
+        labels:
+          powerslide.cloud/infrastructure: 'true'
+      ingress:
+        enabled: true
+        path: /monitoring/grafana
+        pathType: Prefix
+        ingressClassName: traefik
+      grafanaSubPath: /monitoring/grafana
+      grafana.ini:
+        server:
+          domain: localhost
+          root_url: http://localhost:42069/monitoring/grafana
+          serve_from_sub_path: true
+    prometheus:
+      ingress:
+        enabled: true
+        paths:
+          - /monitoring/prometheus
+        pathType: Prefix
+        ingressClassName: traefik
+      prometheusSpec:
+        externalUrl: http://localhost:42069/monitoring/prometheus
+        routePrefix: /monitoring/prometheus
+        serviceMonitorNamespaceSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
+        serviceMonitorSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
+        podMonitorNamespaceSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
+        podMonitorSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
+        probeMonitorNamespaceSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'
+        probeMonitorSelector:
+          matchLabels:
+            powerslide.cloud/infrastructure: 'true'

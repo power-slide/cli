@@ -1,0 +1,62 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: pwrsl-argocd
+  namespace: kube-system
+spec:
+  repo: https://argoproj.github.io/argo-helm
+  chart: argo-cd
+  targetNamespace: pwrsl-argocd
+  version: '5.29.1'
+  valuesContent: |-
+    crds:
+      install: true
+    global:
+      additionalLabels:
+        powerslide.cloud/infrastructure: 'true'
+    configs:
+      params:
+        server.insecure: true
+        server.rootpath: /argo-cd
+    redis:
+      exporter:
+        enabled: true
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+    controller:
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+    dex:
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+    server:
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+      ingress:
+        enabled: true
+        paths:
+          - /argo-cd
+        ingressClassName: traefik
+    repoServer:
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+    applicationSet:
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+    notifications:
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
