@@ -83,6 +83,23 @@ func KubectlHasCRD(ctx context.Context, targetCRD string) bool {
 	return false
 }
 
+func KubectlHasAllCRDs(ctx context.Context, targetCRDs []string) bool {
+	installedCRDs := KubectlGetCRDS(ctx)
+	installedHash := make(map[string]bool)
+
+	for _, crd := range installedCRDs {
+		installedHash[crd] = true
+	}
+
+	for _, crd := range targetCRDs {
+		if !installedHash[crd] {
+			return false
+		}
+	}
+
+	return true
+}
+
 func CreateNamespace(namespace string) {
 	Kubectl([]string{"create", "namespace", namespace}, "")
 	Kubectl([]string{"label", "namespace", namespace, "powerslide.cloud/infrastructure=true"}, "")

@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	//go:embed static/003-argocd.yaml
+	//go:embed static/argo/000-argocd.yaml
 	argocdHelmChart string
 )
 
@@ -23,11 +23,16 @@ func installArgoCD() {
 	util.CreateNamespace("pwrsl-argocd")
 	util.Kubectl([]string{"apply", "-f", "-"}, argocdHelmChart)
 
+	argoCRDs := []string{
+		"appprojects.argoproj.io",
+		"applications.argoproj.io",
+		"applicationsets.argoproj.io",
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
 	defer cancel()
 	for {
-		result := util.KubectlHasCRD(ctx, "applications.argoproj.io")
-		if result {
+		if util.KubectlHasAllCRDs(ctx, argoCRDs) {
 			break
 		} else if ctx.Err() != nil {
 			fmt.Println()

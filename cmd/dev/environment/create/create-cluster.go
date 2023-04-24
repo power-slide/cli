@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	//go:embed static/000-gateway-api.yaml
+	//go:embed static/k3s/000-gateway-api.yaml
 	gatewayAPI string
-	//go:embed static/001-traefik.yaml
+	//go:embed static/k3s/001-traefik.yaml
 	traefikHelmConfig string
 )
 

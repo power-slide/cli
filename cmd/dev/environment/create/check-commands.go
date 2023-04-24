@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	optionalCommands = []string{"asdf"}
-	requiredCommands = []string{"k3d", "kubectl", "argocd"}
+	optionalCommands = []string{"asdf", "argocd"}
+	requiredCommands = []string{"k3d", "kubectl"}
 )
 
 func checkForCommands() {
