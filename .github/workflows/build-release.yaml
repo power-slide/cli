@@ -14,7 +14,8 @@ jobs:
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
         with:
-          github_token: ${{ github.token }}
+          # elevated token needed to push 'v*' protected tags
+          github_token: ${{ secrets.BOT_GITHUB_TOKEN }}
 
       - name: Set Go Version
         id: go_version
