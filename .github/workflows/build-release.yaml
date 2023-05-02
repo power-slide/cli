@@ -41,6 +41,7 @@ jobs:
           body: ${{ steps.tag_version.outputs.changelog }}
           files: |
             bin/install.sh
+            bin/sha256sums
             bin/pwrsl-linux-386
             bin/pwrsl-linux-amd64
             bin/pwrsl-linux-arm

@@ -61,6 +61,7 @@ release:
 	@$(call go_release_build,${RELEASE_VERSION},windows,arm,.exe)
 	@$(call go_release_build,${RELEASE_VERSION},windows,arm64,.exe)
 
+	@sha256sum ${RELEASE_BASE}-* > ${RELEASE_DIR}/sha256sums
 	@echo 'Done!'
 
 test_release:
