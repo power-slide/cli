@@ -29,7 +29,7 @@ define go_build
 	go build -o ${RELEASE_BASE} -ldflags "-X ${MODULE}/pkg/version.Version=$(1)"
 endef
 
-define go_arch_build
+define go_release_build
 	GOOS=$(2) GOARCH=$(3) go build -o ${RELEASE_BASE}-$(2)-$(3)$(4) -ldflags "-X ${MODULE}/pkg/version.Version=$(1)"
 endef
 
@@ -48,18 +48,19 @@ release:
 	@$(call copy_installer,${RELEASE_DIR})
 	@$(call go_build,${RELEASE_VERSION})
 
-	@$(call go_arch_build,${RELEASE_VERSION},linux,386)
-	@$(call go_arch_build,${RELEASE_VERSION},linux,amd64)
-	@$(call go_arch_build,${RELEASE_VERSION},linux,arm)
-	@$(call go_arch_build,${RELEASE_VERSION},linux,arm64)
+	@$(call go_release_build,${RELEASE_VERSION},linux,386)
+	@$(call go_release_build,${RELEASE_VERSION},linux,amd64)
+	@$(call go_release_build,${RELEASE_VERSION},linux,arm)
+	@$(call go_release_build,${RELEASE_VERSION},linux,arm64)
 
-	@$(call go_arch_build,${RELEASE_VERSION},darwin,amd64)
-	@$(call go_arch_build,${RELEASE_VERSION},darwin,arm64)
+	@$(call go_release_build,${RELEASE_VERSION},darwin,amd64)
+	@$(call go_release_build,${RELEASE_VERSION},darwin,arm64)
 
-	@$(call go_arch_build,${RELEASE_VERSION},windows,386,.exe)
-	@$(call go_arch_build,${RELEASE_VERSION},windows,amd64,.exe)
-	@$(call go_arch_build,${RELEASE_VERSION},windows,arm,.exe)
-	@$(call go_arch_build,${RELEASE_VERSION},windows,arm64,.exe)
+	@$(call go_release_build,${RELEASE_VERSION},windows,386,.exe)
+	@$(call go_release_build,${RELEASE_VERSION},windows,amd64,.exe)
+	@$(call go_release_build,${RELEASE_VERSION},windows,arm,.exe)
+	@$(call go_release_build,${RELEASE_VERSION},windows,arm64,.exe)
+
 	@echo 'Done!'
 
 test_release:
