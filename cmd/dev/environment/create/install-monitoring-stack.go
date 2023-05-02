@@ -4,10 +4,10 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/power-slide/cli/cmd/util"
+	"github.com/power-slide/cli/pkg/logger"
 )
 
 const (
@@ -49,18 +49,26 @@ func installPrometheusOperator() {
 	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
 	defer cancel()
 	for {
+		if ctx.Err() != nil {
+			fmt.Println("Error!")
+			logger.CheckErr(ctx.Err())
+		}
+
 		if util.KubectlHasAllCRDs(ctx, requiredPrometheusCRDs) {
 			break
-		} else if ctx.Err() != nil {
-			fmt.Println()
-			log.Fatalln("Unable to install Prometheus operator within", cmdTimeout)
 		}
+
 		time.Sleep(1 * time.Second)
 	}
 
 	ctx, cancel = context.WithTimeout(context.Background(), cmdTimeout)
 	defer cancel()
 	for {
+		if ctx.Err() != nil {
+			fmt.Println("Error!")
+			logger.CheckErr(ctx.Err())
+		}
+
 		result := util.KubectlJSON(
 			ctx,
 			[]string{
@@ -68,13 +76,12 @@ func installPrometheusOperator() {
 				"-n", monitoringNamespace,
 			},
 		)
+
 		items := result["items"].([]any)
 		if len(items) > 0 {
 			break
-		} else if ctx.Err() != nil {
-			fmt.Println()
-			log.Fatalln("Prometheus didn't start within", cmdTimeout)
 		}
+
 		time.Sleep(1 * time.Second)
 	}
 

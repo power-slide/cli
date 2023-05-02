@@ -4,10 +4,10 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/power-slide/cli/cmd/util"
+	"github.com/power-slide/cli/pkg/logger"
 )
 
 var (
@@ -35,8 +35,8 @@ func installArgoCD() {
 		if util.KubectlHasAllCRDs(ctx, argoCRDs) {
 			break
 		} else if ctx.Err() != nil {
-			fmt.Println()
-			log.Fatalln("Unable to install ArgoCD within", cmdTimeout)
+			fmt.Println("Error!")
+			logger.CheckErr(ctx.Err())
 		}
 		time.Sleep(1 * time.Second)
 	}
