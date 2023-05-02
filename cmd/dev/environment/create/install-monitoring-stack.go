@@ -3,6 +3,7 @@ package create
 import (
 	"context"
 	_ "embed"
+	"encoding/base64"
 	"fmt"
 	"time"
 
@@ -19,6 +20,8 @@ var (
 	prometheusOperatorHelmChart string
 	//go:embed static/monitoring/001-traefik.yaml
 	traefikMonitoringManifest string
+	//go:embed static/monitoring/002-grafana.yaml
+	grafanaStackHelmChart string
 )
 
 func installMonitoringStack() {
@@ -28,6 +31,7 @@ func installMonitoringStack() {
 
 	installPrometheusOperator()
 	addTraefikMonitoring()
+	addGrafanaStack()
 }
 
 func installPrometheusOperator() {
@@ -89,7 +93,7 @@ func installPrometheusOperator() {
 		[]string{
 			"wait", "prometheus",
 			"-n", monitoringNamespace,
-			"pwrsl-monitoring-kube-prom-prometheus",
+			"pwrsl-prometheus-kube-prom-prometheus",
 			"--for", "condition=Available",
 		},
 		"",
@@ -102,4 +106,39 @@ func addTraefikMonitoring() {
 	fmt.Print("Adding service monitors for Traefik... ")
 	util.Kubectl([]string{"apply", "-f", "-"}, traefikMonitoringManifest)
 	fmt.Println("Done!")
+}
+
+func addGrafanaStack() {
+	fmt.Print("Installing Grafana observability stack... ")
+	util.Kubectl([]string{"apply", "-f", "-"}, grafanaStackHelmChart)
+
+	var data any
+	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
+	defer cancel()
+	for {
+		if ctx.Err() != nil {
+			fmt.Println("Error!")
+			logger.CheckErr(ctx.Err())
+		}
+
+		data := util.KubectlJSON(
+			ctx,
+			[]string{
+				"get", "secret", "pwrsl-grafana",
+				"-n", monitoringNamespace,
+			},
+		)["data"]
+
+		if data != nil {
+			break
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+
+	encPass := data.(map[string]any)["admin-password"].(string)
+	passBytes, err := base64.URLEncoding.DecodeString(encPass)
+	logger.CheckErr(err)
+	fmt.Println("Done!")
+	fmt.Printf("Grafana 'admin' password is: %s\n", string(passBytes))
 }

@@ -1,7 +1,7 @@
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
-  name: pwrsl-monitoring
+  name: pwrsl-prometheus
   namespace: kube-system
 spec:
   repo: https://prometheus-community.github.io/helm-charts
