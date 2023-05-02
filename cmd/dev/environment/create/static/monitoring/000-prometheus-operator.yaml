@@ -16,13 +16,10 @@ spec:
     prometheus:
       ingress:
         enabled: true
-        paths:
-          - /monitoring/prometheus
-        pathType: Prefix
+        hosts:
+          - pwrsl-prom.127.0.0.1.nip.io
         ingressClassName: traefik
       prometheusSpec:
-        externalUrl: http://localhost:42069/monitoring/prometheus
-        routePrefix: /monitoring/prometheus
         serviceMonitorNamespaceSelector:
           matchLabels:
             powerslide.cloud/infrastructure: 'true'
