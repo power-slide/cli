@@ -1,0 +1,102 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: pwrsl-loki
+  namespace: kube-system
+spec:
+  repo: https://grafana.github.io/helm-charts
+  chart: loki-stack
+  targetNamespace: pwrsl-monitoring
+  version: '2.9.10'
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: pwrsl-tempo
+  namespace: kube-system
+spec:
+  repo: https://grafana.github.io/helm-charts
+  chart: tempo
+  targetNamespace: pwrsl-monitoring
+  version: '1.1.0'
+  valuesContent: |-
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        powerslide.cloud/infrastructure: 'true'
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: pwrsl-grafana
+  namespace: kube-system
+spec:
+  repo: https://grafana.github.io/helm-charts
+  chart: grafana
+  targetNamespace: pwrsl-monitoring
+  version: '6.55.0'
+  valuesContent: |-
+    extraLabels:
+      powerslide.cloud/infrastructure: 'true'
+    ingress:
+      enabled: true
+      hosts:
+        - pwrsl-grafana.127.0.0.1.nip.io
+    serviceMonitor:
+      enabled: true
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            uid: pwrsl-prometheus
+            url: http://pwrsl-prometheus-kube-prom-prometheus.pwrsl-monitoring.svc.cluster.local:9090
+            isDefault: true
+            access: proxy
+
+          - name: Loki
+            type: loki
+            uid: pwrsl-loki
+            access: proxy
+            url: http://pwrsl-loki.pwrsl-monitoring.svc.cluster.local:3100
+            jsonData:
+              maxLines: 1000
+
+          - name: Tempo
+            type: tempo
+            uid: pwrsl-tempo
+            url: http://pwrsl-tempo.pwrsl-monitoring.svc.cluster.local:16686
+            access: proxy
+            basicAuth: false
+            jsonData:
+              tracesToLogsV2:
+                # Field with an internal link pointing to a logs data source in Grafana.
+                # datasourceUid value must match the uid value of the logs data source.
+                datasourceUid: 'pwrsl-loki'
+                spanStartTimeShift: '1h'
+                spanEndTimeShift: '-1h'
+                tags: ['job', 'instance', 'pod', 'namespace']
+                filterByTraceID: false
+                filterBySpanID: false
+                customQuery: true
+                query: 'method="${__span.tags.method}"'
+              tracesToMetrics:
+                datasourceUid: 'pwrsl-prometheus'
+                spanStartTimeShift: '1h'
+                spanEndTimeShift: '-1h'
+                tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
+                queries:
+                  - name: 'Sample query'
+                    query: 'sum(rate(traces_spanmetrics_latency_bucket{$__tags}[5m]))'
+              serviceMap:
+                datasourceUid: 'pwrsl-prometheus'
+              nodeGraph:
+                enabled: true
+              search:
+                hide: false
+              lokiSearch:
+                datasourceUid: 'pwrsl-loki'
+              spanBar:
+                type: 'Tag'
+                tag: 'http.path'

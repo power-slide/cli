@@ -4,11 +4,11 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
-	"log"
 	"os/exec"
 	"time"
 
 	"github.com/power-slide/cli/cmd/util"
+	"github.com/power-slide/cli/pkg/logger"
 )
 
 var (
@@ -34,7 +34,7 @@ func createCluster(clusterName string) {
 	cmd := exec.Command("k3d", clusterCommandArgs...)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		fmt.Println("k3d output:\n", string(out))
-		log.Fatalln(err)
+		logger.CheckErr(err)
 	}
 	fmt.Println("Done!")
 
@@ -51,8 +51,8 @@ func createCluster(clusterName string) {
 		if len(items) > 0 {
 			break
 		} else if ctx.Err() != nil {
-			fmt.Println()
-			log.Fatalln("Unable to configure cluster within", cmdTimeout)
+			fmt.Println("Error!")
+			logger.CheckErr(ctx.Err())
 		}
 		time.Sleep(1 * time.Second)
 	}

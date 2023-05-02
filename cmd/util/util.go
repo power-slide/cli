@@ -9,6 +9,8 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+
+	"github.com/power-slide/cli/pkg/logger"
 )
 
 func Kubectl(args []string, input string) string {
@@ -32,7 +34,7 @@ func Kubectl(args []string, input string) string {
 	if err := cmd.Run(); err != nil {
 		fmt.Println("kubectl output:")
 		fmt.Println(arrayToCleanString(outb.Bytes()))
-		log.Fatalln(arrayToCleanString(errb.Bytes()))
+		logger.CheckErr(arrayToCleanString(errb.Bytes()))
 	}
 
 	return arrayToCleanString(outb.Bytes())
