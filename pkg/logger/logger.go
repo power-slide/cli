@@ -18,9 +18,8 @@ func Init() {
 	}
 }
 
-func CheckErr(msg interface{}) {
+func CheckErr(msg any) {
 	if msg != nil {
-		log.Errorln("Error:", msg)
-		log.Exit(1)
+		log.Fatal(msg)
 	}
 }

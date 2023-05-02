@@ -17,7 +17,6 @@ spec:
     configs:
       params:
         server.insecure: true
-        server.rootpath: /argo-cd
     redis:
       exporter:
         enabled: true
@@ -42,8 +41,8 @@ spec:
           enabled: true
       ingress:
         enabled: true
-        paths:
-          - /argo-cd
+        hosts:
+          - pwrsl-argocd.127.0.0.1.nip.io
         ingressClassName: traefik
     repoServer:
       metrics:
