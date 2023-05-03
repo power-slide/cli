@@ -74,3 +74,6 @@ test_release:
 clean:
 	@rm -rf ${RELEASE_DIR}
 	@echo "Project cleaned"
+
+changelog:
+	@scripts/generate-changelog.sh
