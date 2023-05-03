@@ -121,7 +121,7 @@ func addGrafanaStack() {
 			logger.CheckErr(ctx.Err())
 		}
 
-		data := util.KubectlJSON(
+		data = util.KubectlJSON(
 			ctx,
 			[]string{
 				"get", "secret", "pwrsl-grafana",
