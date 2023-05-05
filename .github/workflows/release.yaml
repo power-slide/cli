@@ -62,6 +62,7 @@ jobs:
         id: pr
         uses: peter-evans/create-pull-request@v5
         with:
+          token: ${{ secrets.BOT_GITHUB_TOKEN }}
           commit-message: 'chore: Update CHANGELOG'
           branch: update-changelog
           delete-branch: true
@@ -74,6 +75,6 @@ jobs:
 
       - name: Merge Change Log PR
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
           PR: ${{ steps.pr.outputs.pull-request-number }}
         run: gh pr merge $PR --merge
