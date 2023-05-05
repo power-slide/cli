@@ -1,11 +1,11 @@
-name: Build Release
+name: Release
 on:
   push:
     branches:
       - master
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -52,3 +52,28 @@ jobs:
             bin/pwrsl-windows-amd64.exe
             bin/pwrsl-windows-arm.exe
             bin/pwrsl-windows-arm64.exe
+
+      - name: Generate Change Log
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: make changelog
+
+      - name: Create Change Log PR
+        id: pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: 'chore: Update CHANGELOG'
+          branch: update-changelog
+          delete-branch: true
+          base: develop
+          labels: |
+            changelog
+          title: '[Automatic] Update CHANGELOG'
+          add-paths: |
+            CHANGELOG.md
+
+      - name: Merge Change Log PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ steps.pr.outputs.pull-request-number }}
+        run: gh pr merge $PR --merge
