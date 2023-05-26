@@ -5,7 +5,7 @@
 
 override RELEASE_DIR = bin
 override RELEASE_BASE = ${RELEASE_DIR}/pwrsl
-override MODULE = github.com/power-slide/cli
+override VERSION_CONST = github.com/power-slide/cli/pkg/version.Version
 override DATE := $(shell date +%Y-%m-%d.%H:%M:%S)
 
 ######## Variables
@@ -17,7 +17,7 @@ endif
 ######## Functions
 
 define make_dir
-	mkdir -p $(1)
+	mkdir -p ${1}
 endef
 
 define copy_installer
@@ -26,11 +26,11 @@ define copy_installer
 endef
 
 define go_build
-	go build -o ${RELEASE_BASE} -ldflags "-X ${MODULE}/pkg/version.Version=$(1)"
+	go build -o "${RELEASE_BASE}" -ldflags="-X \"${VERSION_CONST}=${1}\" ${2}"
 endef
 
 define go_release_build
-	GOOS=$(2) GOARCH=$(3) go build -o ${RELEASE_BASE}-$(2)-$(3)$(4) -ldflags "-X ${MODULE}/pkg/version.Version=$(1)"
+	GOOS="${2}" GOARCH="${3}" go build -o "${RELEASE_BASE}-${2}-${3}${4}" -ldflags="-s -w -X \"${VERSION_CONST}=${1}\""
 endef
 
 ######## Goals
@@ -68,7 +68,7 @@ test_release:
 	@echo -n 'Building PowerSlide CLI ${RELEASE_VERSION}... '
 	@$(call make_dir,${RELEASE_DIR})
 	@$(call copy_installer,${RELEASE_DIR})
-	@$(call go_build,${RELEASE_VERSION})
+	@$(call go_build,${RELEASE_VERSION},-s -w)
 	@echo 'Done!'
 
 clean:
