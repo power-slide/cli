@@ -24,8 +24,8 @@ func CheckNeeded() bool {
 	return config.AutoUpdateEnabled() && version.IsReleaseBuild() && nextCheck.Before(time.Now())
 }
 
-func UpdateNeeded() bool {
-	if CheckNeeded() {
+func UpdateNeeded(skipCheck bool) bool {
+	if skipCheck || CheckNeeded() {
 		config.SetLastUpdateCheck()
 		config.WriteConfig()
 
@@ -34,18 +34,14 @@ func UpdateNeeded() bool {
 			return true
 		} else {
 			remoteVersion := fmt.Sprintf("v%s", version.LatestVersion())
-			if semver.Compare(localVersion, remoteVersion) == -1 {
-				return true
-			} else {
-				return false
-			}
+			return semver.Compare(localVersion, remoteVersion) == -1
 		}
 	}
 	return false
 }
 
 func AutomaticUpdate() {
-	if !UpdateNeeded() {
+	if !UpdateNeeded(false) {
 		log.Debugln("Skipped auto update")
 		return
 	}

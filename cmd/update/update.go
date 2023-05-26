@@ -32,7 +32,6 @@ func init() {
 	Cmd.Flags().BoolVar(&toggleAutoUpdate, "toggle-auto-update", false, "Enable/Disable automatic updating of this CLI")
 	Cmd.Flags().StringVar(&setAutoUpdate, "auto-update", "", "Set to true/false to enable/disable")
 	Cmd.Flags().StringVar(&setCheckInterval, "check-interval", "", "Set to a duration between 1h and 7d")
-	Cmd.Flags().BoolVarP(&forceUpdate, "force", "f", false, "Force an update, disregard checking interval")
 	Cmd.MarkFlagsMutuallyExclusive("toggle-auto-update", "auto-update")
 }
 
@@ -117,7 +116,7 @@ func performUpdate() {
 		return
 	}
 
-	if forceUpdate || updater.UpdateNeeded() {
+	if updater.UpdateNeeded(true) {
 		fmt.Print("Performing update... ")
 		updater.Update()
 		fmt.Println("Done!")
